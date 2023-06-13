@@ -3,12 +3,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuid } = require('uuid');
 const app = express();
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swagger.js');
+
 app.use(bodyParser.json());
+app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 //БД в сделку не входило
-let expenses = [];
-let dailyLimit = 0;
+let expenses = []; let dailyLimit = 0;
 
 
 //CRUD
@@ -72,8 +75,7 @@ app.delete('/expenses/:id', (req, res) => {
 
 //Search
 app.post('/expenses/search', (req, res) => {
-  const { date } = req.body;
-  const searchDate = new Date(date);
+  const { date } = req.body; const searchDate = new Date(date);
   const filteredExpenses = expenses.filter(expense => {
     return (
         expense.date.getDate() === searchDate.getDate() &&
@@ -86,14 +88,12 @@ app.post('/expenses/search', (req, res) => {
 
 //Limit
 app.post('/daily-limit', (req, res) => {
-  const { limit } = req.body;
-  dailyLimit = limit;
+  const { limit } = req.body; dailyLimit = limit;
   res.json({ message: 'Daily limit set successfully.' });
 });
 
 app.get('/daily-limit', (req, res) => {
   res.json({ limit: dailyLimit });
 });
-
 
 module.exports = app;
